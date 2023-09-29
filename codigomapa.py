@@ -1,19 +1,17 @@
 import pandas as pd
-import psycopg2
 import folium
 from folium import PolyLine, Marker
 import ipywidgets as widgets
 from IPython.display import display
-from urllib.parse import quote_plus
 
 url = "https://raw.githubusercontent.com/daniboy1995/mapaod/main/dadosmapa.csv"
 df = pd.read_csv(url)
 
-
 # Crie uma função para atualizar as opções do filtro de rota com base na seleção de zona de tráfego
-def atualizar_rotas(change):
-    if change.new:
-        filtro_route.options = df[df['trafficzoneidorign'].isin(change.new)]['route'].unique()
+def atualizar_rotas(change, default_value=(1,)):
+    if not change.new:
+        change.new = default_value
+    filtro_route.options = df[df['trafficzoneidorign'].isin(change.new)]['route'].unique()
 
 # Crie uma função para plotar o mapa com base nas seleções feitas
 def plotar_mapa(zonas_selecionadas, ticketdate_selecionada, route_selecionada):
@@ -59,6 +57,7 @@ filtro_zona_trafego = widgets.SelectMultiple(
     options=zonas_de_trafego,
     description='Zona de Tráfego:',
     disabled=False,
+    value=(1,)  # Defina o valor padrão como (1,)
 )
 
 # Crie widgets de seleção para o ticketdate e a rota
