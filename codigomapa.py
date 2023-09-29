@@ -6,41 +6,8 @@ import ipywidgets as widgets
 from IPython.display import display
 from urllib.parse import quote_plus
 
-
-
-# Configurações de conexão ao Redshift
-host = 'aeq-bi.czukcqgshfeu.us-east-1.redshift.amazonaws.com'
-dbname = 'bi'
-user = 'temp'
-password = 'vMrrNWTaG$7N'
-port = '5439'
-
-# Construa a string de conexão
-conn_string = f"dbname={dbname} user={user} password={password} host={host} port={port}"
-
-# Função para obter os dados do Redshift
-def get_data_from_redshift():
-    try:
-        # Conecte-se ao Redshift
-        conn = psycopg2.connect(conn_string)
-
-        # Sua consulta SQL para obter dados com origem e destino
-        query = "SELECT * FROM p688.origndestinationseed limit 1000"
-
-        # Execute a consulta
-        df = pd.read_sql_query(query, conn)
-
-        # Feche a conexão
-        conn.close()
-
-        return df
-
-    except Exception as e:
-        print("Ocorreu um erro ao obter dados do Redshift:", e)
-        return None
-
-# Carregue os dados do Redshift
-df = get_data_from_redshift()
+url = "https://raw.githubusercontent.com/daniboy1995/mapaod/main/dadosmapa.csv"
+df = pd.read_csv(url)
 
 
 # Crie uma função para atualizar as opções do filtro de rota com base na seleção de zona de tráfego
