@@ -4,6 +4,8 @@ import folium
 from folium import PolyLine, Marker
 import ipywidgets as widgets
 from IPython.display import display
+from urllib.parse import quote_plus
+
 
 
 # Configurações de conexão ao Redshift
@@ -14,7 +16,7 @@ password = 'vMrrNWTaG$7N'
 port = '5439'
 
 # Construa a string de conexão
-conn_string = f"host={host} dbname={dbname} user={user} password={password} port={port}"
+conn_string = f"dbname={dbname} user={user} password={password} host={host} port={port}"
 
 # Função para obter os dados do Redshift
 def get_data_from_redshift():
@@ -39,6 +41,7 @@ def get_data_from_redshift():
 
 # Carregue os dados do Redshift
 df = get_data_from_redshift()
+
 
 # Crie uma função para atualizar as opções do filtro de rota com base na seleção de zona de tráfego
 def atualizar_rotas(change):
