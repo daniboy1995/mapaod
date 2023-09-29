@@ -5,7 +5,6 @@ anyio==4.0.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
 arrow==1.2.3
-asttokens==2.4.0
 async-timeout==4.0.3
 attrs==23.1.0
 Babel==2.12.1
@@ -106,7 +105,7 @@ python-dateutil==2.8.2
 python-json-logger==2.0.7
 pytz==2023.3.post1
 pyviz_comms==3.0.0
-pywin32==306
+pywin32
 pywinpty==2.0.11
 PyYAML==6.0.1
 pyzmq==25.1.1
