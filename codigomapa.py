@@ -3,6 +3,8 @@ import folium
 from folium import PolyLine, Marker
 import ipywidgets as widgets
 from IPython.display import display
+import streamlit as st
+
 
 url = "https://raw.githubusercontent.com/daniboy1995/mapaod/main/dadosmapa.csv"
 df = pd.read_csv(url)
