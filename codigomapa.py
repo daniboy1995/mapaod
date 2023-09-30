@@ -2,6 +2,8 @@ import pandas as pd
 import folium
 from folium import PolyLine, Marker
 import streamlit as st
+from streamlit_folium import folium_static
+
 
 url = "https://raw.githubusercontent.com/daniboy1995/mapaod/main/dadosmapa.csv"
 df = pd.read_csv(url)
