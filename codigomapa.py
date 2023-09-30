@@ -42,7 +42,7 @@ def plotar_mapa(zonas_selecionadas, ticketdate_selecionada, route_selecionada):
             linha.add_to(mapa)
 
         # Exibe o mapa no Streamlit
-        st.folium_chart(mapa)
+        st.map(mapa)
     else:
         st.write("Nenhum dado encontrado para as seleções feitas.")
 
