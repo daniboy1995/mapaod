@@ -11,35 +11,39 @@ def plotar_mapa(zonas_selecionadas, ticketdate_selecionada, route_selecionada):
                      (df['route'] == route_selecionada)]
 
     if not df_filtrado.empty:
-        view_state = pdk.ViewState(
-            latitude=df_filtrado['latorigem'].mean(),
-            longitude=df_filtrado['lonorigem'].mean(),
-            zoom=10
-        )
+        origens = df_filtrado[['lonorigem', 'latorigem']]
+        destinos = df_filtrado[['londestino', 'latdestino']]
+        linhas = origens.join(destinos, lsuffix='_origem', rsuffix='_destino')
 
         layers = [
             pdk.Layer(
                 "ScatterplotLayer",
-                data=df_filtrado,
+                data=origens,
                 get_position=['lonorigem', 'latorigem'],
                 get_color='[0, 255, 0]',
                 get_radius=50,
             ),
             pdk.Layer(
                 "ScatterplotLayer",
-                data=df_filtrado,
+                data=destinos,
                 get_position=['londestino', 'latdestino'],
                 get_color='[0, 0, 255]',
                 get_radius=50,
             ),
             pdk.Layer(
                 "PathLayer",
-                data=df_filtrado,
+                data=linhas,
                 get_path=['lonorigem', 'latorigem', 'londestino', 'latdestino'],
                 get_color='[255, 0, 0]',
-                width_scale=5,
+                get_width=5,
             ),
         ]
+
+        view_state = pdk.ViewState(
+            latitude=df_filtrado['latorigem'].mean(),
+            longitude=df_filtrado['lonorigem'].mean(),
+            zoom=10
+        )
 
         map = pdk.Deck(
             map_style="mapbox://styles/mapbox/light-v9",
