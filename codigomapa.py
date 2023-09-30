@@ -1,36 +1,10 @@
 import pandas as pd
-import osmnx as ox
 import folium
 from folium import PolyLine, Marker
 import streamlit as st
 
-# Carregando os dados
 url = "https://raw.githubusercontent.com/daniboy1995/mapaod/main/dadosmapa.csv"
 df = pd.read_csv(url)
-
-def plotar_mapa(zonas_selecionadas, ticketdate_selecionada, route_selecionada):
-    df_filtrado = df[df['trafficzoneidorign'].isin(zonas_selecionadas) &
-                     (df['ticketdate'] == ticketdate_selecionada) &
-                     (df['route'] == route_selecionada)]
-
-    if not df_filtrado.empty:
-        # Obtendo os pontos de origem e destino
-        origens = list(zip(df_filtrado['latorigem'], df_filtrado['lonorigem']))
-        destinos = list(zip(df_filtrado['latdestino'], df_filtrado['londestino']))
-
-        # Criando um mapa base usando OpenStreetMap
-        mapa = folium.Map(location=[df_filtrado['latorigem'].mean(), df_filtrado['lonorigem'].mean()], zoom_start=10)
-
-        # Adicionando marcadores de origem e destino ao mapa
-        for origem, destino in zip(origens, destinos):
-            folium.Marker(location=origem, icon=folium.Icon(color='green')).add_to(mapa)
-            folium.Marker(location=destino, icon=folium.Icon(color='blue')).add_to(mapa)
-            PolyLine([origem, destino], color="red", weight=2.5, opacity=1).add_to(mapa)
-
-        # Exibindo o mapa
-        st.write(mapa)
-    else:
-        st.write("Nenhum dado encontrado para as seleções feitas.")
 
 zonas_de_trafego = df['trafficzoneidorign'].unique()
 filtro_zona_trafego = st.multiselect('Zona de Tráfego:', zonas_de_trafego, default=(1,))
@@ -38,6 +12,32 @@ filtro_zona_trafego = st.multiselect('Zona de Tráfego:', zonas_de_trafego, defa
 ticketdates = df['ticketdate'].unique()
 filtro_ticketdate = st.selectbox('Ticket Date:', ticketdates)
 
-filtro_route = st.selectbox('Route:', df['route'].unique())
+rotas_disponiveis = df[df['trafficzoneidorign'].isin(filtro_zona_trafego) & (df['ticketdate'] == filtro_ticketdate)]['route'].unique()
+filtro_route = st.selectbox('Route:', rotas_disponiveis)
 
-plotar_mapa(filtro_zona_trafego, filtro_ticketdate, filtro_route)
+df_filtrado = df[(df['trafficzoneidorign'].isin(filtro_zona_trafego)) & (df['ticketdate'] == filtro_ticketdate) & (df['route'] == filtro_route)]
+
+if not df_filtrado.empty:
+    mapa = folium.Map(location=[df_filtrado['latorigem'].mean(), df_filtrado['lonorigem'].mean()], zoom_start=10)
+
+    for index, row in df_filtrado.iterrows():
+        origem = (row['latorigem'], row['lonorigem'])
+        destino = (row['latdestino'], row['londestino'])
+        rota = row['route']
+        zona = row['trafficzoneidorign']
+        
+        usercards_count = df_filtrado[df_filtrado['route'] == rota]['usercard'].count()
+        
+        popup_text = f"Origem: {origem}<br>Destino: {destino}<br>Rota: {rota}<br>Usercards: {usercards_count}"
+        
+        cor = 'green' if origem == (row['latorigem'], row['lonorigem']) else 'red'
+        
+        folium.Marker(location=origem, icon=folium.Icon(color=cor), tooltip=popup_text).add_to(mapa)
+        folium.Marker(location=destino, icon=folium.Icon(color='blue'), tooltip=popup_text).add_to(mapa)
+
+        linha = PolyLine(locations=[origem, destino], color='blue', tooltip=popup_text)
+        linha.add_to(mapa)
+
+    st.write(mapa._repr_html_(), unsafe_allow_html=True)
+else:
+    st.write("Nenhum dado encontrado para as seleções feitas.")
