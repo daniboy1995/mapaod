@@ -1,7 +1,10 @@
 import pandas as pd
-import pydeck as pdk
+import osmnx as ox
+import folium
+from folium import PolyLine, Marker
 import streamlit as st
 
+# Carregando os dados
 url = "https://raw.githubusercontent.com/daniboy1995/mapaod/main/dadosmapa.csv"
 df = pd.read_csv(url)
 
@@ -11,47 +14,21 @@ def plotar_mapa(zonas_selecionadas, ticketdate_selecionada, route_selecionada):
                      (df['route'] == route_selecionada)]
 
     if not df_filtrado.empty:
-        origens = df_filtrado[['lonorigem', 'latorigem']]
-        destinos = df_filtrado[['londestino', 'latdestino']]
-        linhas = origens.join(destinos, lsuffix='_origem', rsuffix='_destino')
+        # Obtendo os pontos de origem e destino
+        origens = list(zip(df_filtrado['latorigem'], df_filtrado['lonorigem']))
+        destinos = list(zip(df_filtrado['latdestino'], df_filtrado['londestino']))
 
-        layers = [
-            pdk.Layer(
-                "ScatterplotLayer",
-                data=origens,
-                get_position=['lonorigem', 'latorigem'],
-                get_color='[0, 255, 0]',
-                get_radius=50,
-            ),
-            pdk.Layer(
-                "ScatterplotLayer",
-                data=destinos,
-                get_position=['londestino', 'latdestino'],
-                get_color='[0, 0, 255]',
-                get_radius=50,
-            ),
-            pdk.Layer(
-                "PathLayer",
-                data=linhas,
-                get_path=['lonorigem', 'latorigem', 'londestino', 'latdestino'],
-                get_color='[255, 0, 0]',
-                get_width=5,
-            ),
-        ]
+        # Criando um mapa base usando OpenStreetMap
+        mapa = folium.Map(location=[df_filtrado['latorigem'].mean(), df_filtrado['lonorigem'].mean()], zoom_start=10)
 
-        view_state = pdk.ViewState(
-            latitude=df_filtrado['latorigem'].mean(),
-            longitude=df_filtrado['lonorigem'].mean(),
-            zoom=10
-        )
+        # Adicionando marcadores de origem e destino ao mapa
+        for origem, destino in zip(origens, destinos):
+            folium.Marker(location=origem, icon=folium.Icon(color='green')).add_to(mapa)
+            folium.Marker(location=destino, icon=folium.Icon(color='blue')).add_to(mapa)
+            PolyLine([origem, destino], color="red", weight=2.5, opacity=1).add_to(mapa)
 
-        map = pdk.Deck(
-            map_style="mapbox://styles/mapbox/light-v9",
-            initial_view_state=view_state,
-            layers=layers,
-        )
-
-        st.pydeck_chart(map)
+        # Exibindo o mapa
+        st.write(mapa)
     else:
         st.write("Nenhum dado encontrado para as seleções feitas.")
 
