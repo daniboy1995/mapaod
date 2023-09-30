@@ -38,6 +38,7 @@ if not df_filtrado.empty:
         linha = PolyLine(locations=[origem, destino], color='blue', tooltip=popup_text)
         linha.add_to(mapa)
 
-    st.write(mapa._repr_html_(), unsafe_allow_html=True)
+    # Use folium_static para renderizar o mapa no Streamlit
+    st.write(folium_static(mapa))
 else:
     st.write("Nenhum dado encontrado para as seleções feitas.")
